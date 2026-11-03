@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>CEPROC · Suivi des élèves</title><link rel="stylesheet" href="assets/admin.css"><style>.brand{display:flex;align-items:center;gap:16px}.brand img{object-fit:contain;flex-shrink:0}</style></head>
+<body>
+<header><div class="brand"><img src="assets/logo-ceproc.png" alt="Logo du CEPROC" width="53" height="53"><div><p class="eyebrow">CEPROC · CQP pizzaïolo</p><h1>Suivi des élèves</h1></div></div><a href="index.html">Revenir aux examens</a></header>
+<main>
+<p id="cloudStatus" class="notice" role="status">Vérification de la disponibilité du suivi…</p>
+<section id="loginPanel" class="card" hidden>
+  <h2>Connexion de l’équipe pédagogique</h2>
+  <p>Un compte autorisé et une adresse e-mail vérifiée sont nécessaires.</p>
+  <form id="loginForm"><label>E-mail<input id="adminEmail" type="email" autocomplete="username" required></label><label>Mot de passe<input id="adminPassword" type="password" autocomplete="current-password" required></label><button>Se connecter</button></form>
+  <p><a href="index.html#accountPanel">Créer ou vérifier mon compte sur l’espace élève</a></p>
+</section>
+<section id="privatePanel" hidden>
+  <div class="row"><p id="identity"></p><div><button id="refreshButton" type="button">Actualiser</button> <button id="logoutButton" type="button" class="secondary">Se déconnecter</button></div></div>
+  <nav aria-label="Rubriques du suivi"><button id="studentsTab" aria-pressed="true">Progression</button> <button id="accessTab" aria-pressed="false" hidden>Gestion des accès</button></nav>
+  <section id="studentsPanel">
+    <div class="filters card"><label>Rechercher un élève<input id="searchInput" type="search" placeholder="Nom ou adresse e-mail"></label><label>Groupe<select id="groupFilter"><option value="">Tous les groupes</option></select></label><button id="exportButton" class="secondary">Exporter le bilan CSV</button></div>
+    <div id="kpis" class="kpis"></div>
+    <p class="hint">Moyenne et taux de réussite : dernière tentative de chaque sujet, pour les élèves filtrés. Les exercices sans tentative restent hors de ces moyennes. Les notes sont recalculées à partir des réponses.</p>
+    <div class="table-wrap card"><table><caption>Progression par élève</caption><thead><tr><th>Élève</th><th>Sujets terminés</th><th>Tentatives</th><th>Moyenne / 50</th><th>Progression</th><th>Dernière activité</th><th>Détail</th></tr></thead><tbody id="studentRows"></tbody></table></div>
+    <section id="studentDetail" class="card" hidden></section>
+  </section>
+  <section id="accessPanel" class="card" hidden>
+    <h2>Autoriser une personne</h2>
+    <p>Cette autorisation permet à la personne de créer son compte et de se connecter avec son adresse vérifiée. Aucun e-mail ni aucune invitation ne sont envoyés par ce formulaire.</p>
+    <form id="grantForm"><label>E-mail<input id="grantEmail" type="email" required autocomplete="off"></label><label>Rôle<select id="grantRole"><option value="student">Élève · ses propres résultats</option><option value="trainer">Formateur · consulter le suivi de tous les élèves</option><option value="admin">Administrateur · suivi et gestion des accès</option></select></label><button>Autoriser cet accès</button></form>
+    <p id="grantStatus" role="status"></p>
+    <p><button id="copyLink" type="button" class="secondary">Copier le lien d’inscription</button></p>
+    <div class="table-wrap"><table><caption>Autorisations enregistrées</caption><thead><tr><th>Adresse e-mail</th><th>Rôle</th><th>État</th><th>Action</th></tr></thead><tbody id="grantRows"></tbody></table></div>
+    <p class="hint">Retirer l’autorisation coupe les nouveaux accès aux données. Cela ne supprime ni le compte de connexion ni les résultats déjà enregistrés. Un administrateur peut modifier les accès des autres administrateurs.</p>
+  </section>
+</section>
+</main><footer>Prototype pédagogique · Données individuelles réservées aux personnes autorisées.</footer>
+<script src="assets/grading.js"></script><script type="module" src="assets/admin.js"></script>
+</body></html>
