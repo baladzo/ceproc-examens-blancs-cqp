@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fr">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>CEPROC · Suivi des élèves</title><link rel="stylesheet" href="assets/admin.css"><style>.brand{display:flex;align-items:center;gap:16px}.brand img{object-fit:contain;flex-shrink:0}</style></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>CEPROC · Suivi des élèves</title><link rel="stylesheet" href="assets/admin.css"><link rel="stylesheet" href="assets/personal-progress.css"><style>.brand{display:flex;align-items:center;gap:16px}.brand img{object-fit:contain;flex-shrink:0}</style></head>
 <body>
 <header><div class="brand"><img src="assets/logo-ceproc.png" alt="Logo du CEPROC" width="53" height="53"><div><p class="eyebrow">CEPROC · CQP pizzaïolo</p><h1>Suivi des élèves</h1></div></div><a href="index.html">Revenir aux examens</a></header>
 <main>
@@ -9,7 +9,7 @@
   <h2>Connexion de l’équipe pédagogique</h2>
   <p>Un compte autorisé et une adresse e-mail vérifiée sont nécessaires.</p>
   <form id="loginForm"><label>E-mail<input id="adminEmail" type="email" autocomplete="username" required></label><label>Mot de passe<input id="adminPassword" type="password" autocomplete="current-password" required></label><button>Se connecter</button></form>
-  <p><a href="index.html#accountPanel">Créer ou vérifier mon compte sur l’espace élève</a></p>
+  <p><a href="index.html#accountPanel">Premier accès, vérification ou mot de passe oublié</a></p>
 </section>
 <section id="privatePanel" hidden>
   <div class="row"><p id="identity"></p><div><button id="refreshButton" type="button">Actualiser</button> <button id="logoutButton" type="button" class="secondary">Se déconnecter</button></div></div>
@@ -17,8 +17,8 @@
   <section id="studentsPanel">
     <div class="filters card"><label>Rechercher un élève<input id="searchInput" type="search" placeholder="Nom ou adresse e-mail"></label><label>Groupe<select id="groupFilter"><option value="">Tous les groupes</option></select></label><button id="exportButton" class="secondary">Exporter le bilan CSV</button></div>
     <div id="kpis" class="kpis"></div>
-    <p class="hint">Moyenne et taux de réussite : dernière tentative de chaque sujet, pour les élèves filtrés. Les exercices sans tentative restent hors de ces moyennes. Les notes sont recalculées à partir des réponses.</p>
-    <div class="table-wrap card"><table><caption>Progression par élève</caption><thead><tr><th>Élève</th><th>Sujets terminés</th><th>Tentatives</th><th>Moyenne / 50</th><th>Progression</th><th>Dernière activité</th><th>Détail</th></tr></thead><tbody id="studentRows"></tbody></table></div>
+    <p class="hint">Moyenne et taux de réussite des examens : dernière tentative de chaque sujet, pour les élèves filtrés. Le détail montre aussi les exercices des 18 cours. Toutes les notes sont recalculées à partir des réponses.</p>
+    <div class="table-wrap card"><table><caption>Progression par élève</caption><thead><tr><th>Élève</th><th>Sujets terminés</th><th>Cours corrigés</th><th>Tentatives</th><th>Moyenne / 50</th><th>Progression</th><th>Dernière activité</th><th>Détail</th></tr></thead><tbody id="studentRows"></tbody></table></div>
     <section id="studentDetail" class="card" hidden></section>
   </section>
   <section id="accessPanel" class="card" hidden>

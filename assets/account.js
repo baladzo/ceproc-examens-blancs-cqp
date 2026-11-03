@@ -32,8 +32,18 @@ function notify(text) {
   render();
 }
 
+function publicIdentity() {
+  return {
+    user:currentUser ? {uid:currentUser.uid,email:currentUser.email || '',
+      emailVerified:currentUser.emailVerified === true,displayName:currentUser.displayName || ''} : null,
+    access:access ? {role:access.role,active:access.active === true,email:access.email || ''} : null,
+  };
+}
+
+window.CeprocAccount = Object.freeze({getIdentity:publicIdentity});
+
 function identityChanged() {
-  window.dispatchEvent(new CustomEvent('ceproc:identity', {detail:{user:currentUser, access}}));
+  window.dispatchEvent(new CustomEvent('ceproc:identity', {detail:publicIdentity()}));
 }
 
 function stopSync() {
@@ -114,7 +124,10 @@ async function syncNow() {
       if (!canSync(uid, epoch)) return;
       storeQueue(uid, readQueue(uid).filter(item => item.id !== attempt.id));
     }
-    if (canSync(uid, epoch)) notify('Réponses synchronisées avec votre espace.');
+    if (canSync(uid, epoch)) {
+      window.dispatchEvent(new CustomEvent('ceproc:exam-synced', {detail:{uid}}));
+      notify('Réponses synchronisées avec votre espace.');
+    }
   } catch (error) {
     if (identityEpoch === epoch) await showError(error);
   } finally {
@@ -147,24 +160,6 @@ async function startAuthorizedUser(user, epoch) {
   await d.setDoc(studentRef, identity, {merge:true});
   if (epoch !== identityEpoch) return;
   currentProfile = {displayName:identity.displayName, group:savedProfile?.group || ''};
-  const progress = await d.getDocFromServer(d.doc(db, 'students', user.uid, 'progress', 'current'));
-  if (epoch !== identityEpoch) return;
-  const remote = progress.exists() ? progress.data().state : null;
-  const choice = chooseInitialState(study?.snapshot(), remote);
-  if (choice === 'incompatible') {
-    notify('La sauvegarde distante concerne une autre version des examens. Elle n’a pas été remplacée ; contactez le formateur.');
-    return;
-  }
-  if (choice === 'conflict') {
-    pendingChoice = {remote, epoch};
-    notify('Deux sauvegardes différentes existent pour ce compte. Choisissez celle à reprendre. Les tentatives déjà remises restent conservées.');
-  } else {
-    if (choice === 'remote') study?.restoreRemote(remote);
-    readyToSync = true;
-    suppressSync = false;
-    notify('Espace personnel ouvert. Vos nouvelles réponses seront synchronisées.');
-    scheduleSync();
-  }
   unsubscribeGrant = d.onSnapshot(d.doc(db, 'accessGrants', normalizeEmail(user.email)), snapshot => {
     if (epoch !== identityEpoch) return;
     const grant = snapshot.exists() ? snapshot.data() : null;
@@ -185,6 +180,30 @@ async function startAuthorizedUser(user, epoch) {
     identityChanged();
     render();
   }, async error => { if (epoch === identityEpoch) await showError(error); });
+  // The course reader has authentication and a profile, but no exam bridge.
+  // Never read or write exam progress from that page.
+  if (!study) {
+    notify('Espace personnel ouvert.');
+    return;
+  }
+  const progress = await d.getDocFromServer(d.doc(db, 'students', user.uid, 'progress', 'current'));
+  if (epoch !== identityEpoch) return;
+  const remote = progress.exists() ? progress.data().state : null;
+  const choice = chooseInitialState(study.snapshot(), remote);
+  if (choice === 'incompatible') {
+    notify('La sauvegarde distante concerne une autre version des examens. Elle n’a pas été remplacée ; contactez le formateur.');
+    return;
+  }
+  if (choice === 'conflict') {
+    pendingChoice = {remote, epoch};
+    notify('Deux sauvegardes différentes existent pour ce compte. Choisissez celle à reprendre. Les tentatives déjà remises restent conservées.');
+  } else {
+    if (choice === 'remote') study.restoreRemote(remote);
+    readyToSync = true;
+    suppressSync = false;
+    notify('Espace personnel ouvert. Vos nouvelles réponses seront synchronisées.');
+    scheduleSync();
+  }
 }
 
 async function authChanged(user) {
@@ -248,7 +267,7 @@ function render() {
       await cloud.authApi.sendPasswordResetEmail(cloud.auth, normalizeEmail(email.value));
       notify('Si cette adresse permet une réinitialisation, les instructions ont été demandées.');
     }, form);
-    panel.append(form, node('p', 'L’inscription ne donne pas l’accès : votre adresse doit être vérifiée et autorisée par l’administrateur.'));
+    panel.append(form, node('p', 'L’inscription ne donne pas l’accès : votre adresse doit être vérifiée et autorisée par l’administrateur.'), node('p', 'Si votre compte a été préparé par l’école, utilisez « Mot de passe oublié » pour définir votre mot de passe.'));
     return;
   }
   panel.append(node('p', currentUser.email || 'Compte connecté'));
@@ -264,6 +283,9 @@ function render() {
     }, panel);
   } else if (access?.active) {
     panel.append(node('p', `Rôle : ${{student:'élève',trainer:'formateur',admin:'administrateur'}[access.role]}`));
+    action('Ma progression', async () => {
+      window.dispatchEvent(new CustomEvent('ceproc:show-personal-progress'));
+    }, panel);
     if (currentProfile) {
       const details = node('details');
       details.append(node('summary', 'Mon profil'));
@@ -317,6 +339,7 @@ function render() {
   }
   action('Se déconnecter', async () => {
     identityEpoch++;
+    currentUser = null;
     clearPrivateView();
     await cloud.authApi.signOut(cloud.auth);
   }, panel);
@@ -330,13 +353,17 @@ window.addEventListener('ceproc:complete', event => {
   scheduleSync();
 });
 window.addEventListener('online', scheduleSync);
+window.addEventListener('ceproc:access-denied', event => {
+  if (!currentUser || (event.detail?.uid && event.detail.uid !== currentUser.uid)) return;
+  void showError({code:'permission-denied'});
+});
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden' && readyToSync) void syncNow();
 });
 
 export async function initializeAccounts() {
   render();
-  if (!panel || !study || !isCloudConfigured()) return;
+  if (!panel || !isCloudConfigured()) return;
   try {
     cloud = await connectCloud();
     cloud.authApi.onAuthStateChanged(cloud.auth, authChanged);

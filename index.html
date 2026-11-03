@@ -285,6 +285,7 @@
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
     @media print{aside,.site-header,.tabs,.timer,.exam-bottom,.result-actions,.transfer-buttons,.quiet-button,.toast{display:none!important}.shell{display:block;padding:0;max-width:none}.question,.correction-card{box-shadow:none;break-inside:avoid}.hero{margin-top:0}body{background:white}}
   </style>
+  <link rel="stylesheet" href="assets/personal-progress.css">
 </head>
 <body>
   <a class="skip-link" href="#examContent">Aller aux questions</a>
@@ -328,6 +329,7 @@
           <span class="stat goal">Objectif : 40 / 50</span>
         </div>
       </div>
+      <section id="personalProgressPanel" aria-label="Ma progression" hidden></section>
       <div class="tabs" role="tablist" aria-label="Examen et correction">
         <button class="tab" role="tab" id="examTab" type="button" aria-controls="examPanel" aria-selected="true">Examen</button>
         <button class="tab" role="tab" id="resultsTab" type="button" aria-controls="resultsPanel" aria-selected="false" disabled>Résultats et correction</button>
@@ -1101,7 +1103,7 @@
       switchUser: function (uid) {
         Object.keys(state.exams).forEach(function(id){pauseEntry(state.exams[id]);});
         save();
-        STORAGE_KEY = APP_ID + "-bank2-" + (uid ? String(uid).replace(/[^a-zA-Z0-9_-]/g, "") : "anonymous");
+        STORAGE_KEY = APP_ID + "-bank2-" + (uid ? "uid-" + encodeURIComponent(String(uid)) : "anonymous");
         state = {app:APP_ID,version:2,bankVersion:BANK_VERSION,currentExamId:DATA.exams[0].id,exams:{},updatedAt:new Date().toISOString()};
         activeTab="exam";
         restore();
@@ -1123,5 +1125,6 @@
   })();
   </script>
   <script type="module" src="assets/account.js"></script>
+  <script type="module" src="assets/personal-progress.js"></script>
 </body>
 </html>
