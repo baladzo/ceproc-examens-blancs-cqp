@@ -1,6 +1,8 @@
 # CEPROC - Examen blanc CQP pizzaïolo
 
-Prototype pédagogique proposé au CEPROC, Centre d’Excellence des Professions Culinaires. Ce projet et ses sujets ne sont pas une publication officielle de l’école ; ils sont à relire et à valider par ses formateurs avant un usage officiel. Aucun logo officiel n’a été reproduit.
+Prototype pédagogique proposé au CEPROC, Centre d’Excellence des Professions Culinaires. Ce projet et ses sujets ne sont pas une publication officielle de l’école ; ils sont à relire et à valider par ses formateurs avant un usage officiel.
+
+L’interface reprend le [logo officiel du CEPROC](https://www.ceproc.com/wp-content/themes/ceproc/images/logo-min-ceproc.png), qui reste la propriété de l’école. Sa palette reprend les couleurs du [site officiel](https://www.ceproc.com/) : `#364991`, `#0c3686`, `#f6f1eb` et `#c43013`.
 
 ## Utiliser les examens
 
